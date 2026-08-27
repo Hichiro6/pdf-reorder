@@ -1,0 +1,21 @@
+{
+  "name": "PDF Reorder",
+  "short_name": "PDF Reorder",
+  "description": "Rotate and reorder PDF pages in your browser. 100% local, your files never leave your browser.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#08090a",
+  "theme_color": "#08090a",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ],
+  "categories": [
+    "productivity",
+    "utilities"
+  ],
+  "lang": "en-US"
+}
