@@ -3,7 +3,7 @@
  * 7-language internationalization (EN/FR/DE/ES/PT/NL/IT)
  */
 
-export const STORAGE_KEY = '***';
+export const STORAGE_KEY = 'pdfreorder_lang';
 
 export const LANGUAGES = {
   en: { code: 'en', name: 'English' },

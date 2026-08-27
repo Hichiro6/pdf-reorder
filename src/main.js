@@ -166,7 +166,7 @@ async function loadPdf(file) {
       pages.push({
         id: crypto.randomUUID(),
         pageNum,
-        rotation: page.setRotation(),
+        rotation: 0,
         thumbnail,
         width: viewport.width,
         height: viewport.height,

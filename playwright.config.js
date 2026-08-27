@@ -14,7 +14,7 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   
   // Workers: undefined = auto (optimal for local), 1 on CI
-  workers: process.env.CI ? 1 : undefined,
+  workers: process.env.CI ? 1 : 2,
   
   // Reporter configuration
   reporter: [
@@ -51,6 +51,9 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] },
     },
   ],
+  
+  // Global setup for locale injection
+  globalSetup: './tests/e2e/globalSetup.js',
   
   // Start local dev server before tests
   webServer: {
