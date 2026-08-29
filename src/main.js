@@ -3,11 +3,14 @@
  * Reorder, rotate, and remove pages using pdf-lib and pdfjs-dist
  */
 
-import { PDFDocument } from 'pdf-lib';
+import { PDFDocument, Degrees } from 'pdf-lib';
 import * as pdfjsLib from 'pdfjs-dist';
 import { initI18n, t } from './i18n.js';
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = '/node_modules/pdfjs-dist/build/pdf.worker.min.mjs';
+pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
+  './pdf.worker.min.mjs',
+  import.meta.url,
+).toString();
 
 // State
 let pdfDoc = null;
@@ -175,10 +178,7 @@ async function loadPdf(file) {
 
     workspace.hidden = false;
     filenameEl.textContent = `${file.name}`;
-    pageCountEl.textContent = `${pdfDoc.numPages} ${t('workspace.pages')}`.replace(
-      '{count}',
-      pdfDoc.numPages,
-    );
+    pageCountEl.textContent = t('workspace.pages', { count: pdfDoc.numPages });
     renderPages();
     announce(`${pdfDoc.numPages} pages loaded`);
   } catch (err) {
@@ -222,7 +222,7 @@ function createPageCard(page, index) {
   const checkbox = document.createElement('input');
   checkbox.type = 'checkbox';
   checkbox.className = 'page-card__checkbox';
-  checkbox.checked = true;
+  checkbox.checked = selectedPages.has(index);
   checkbox.setAttribute('aria-label', `Select page ${index + 1}`);
   checkbox.addEventListener('change', () => {
     if (checkbox.checked) {
@@ -287,6 +287,9 @@ function createPageCard(page, index) {
   card.appendChild(rotationIndicator);
   card.appendChild(removeBtn);
   card.appendChild(rotateOverlay);
+
+  // Sync selected state visually
+  card.classList.toggle('page-card--selected', selectedPages.has(index));
 
   // Drag events
   card.addEventListener('dragstart', handleDragStart);
@@ -454,10 +457,7 @@ function removePage(index) {
   selectedPages = newSelected;
 
   renderPages();
-  pageCountEl.textContent = `${pages.length} ${t('workspace.pages')}`.replace(
-    '{count}',
-    pages.length,
-  );
+  pageCountEl.textContent = t('workspace.pages', { count: pages.length });
   announce(`Page ${index + 1} removed`);
 }
 
@@ -534,9 +534,10 @@ async function savePdf() {
 
       // Copy page from original PDF
       const [embeddedPage] = await newPdfDoc.copyPages(pdfDoc, [pageData.pageNum - 1]);
-      embeddedPage.setRotation(
-        pdfDoc.PageRotationDegrees(pageData.pageNum - 1) + pageData.rotation,
-      );
+      // Apply original rotation + user rotation (pdf-lib expects Degrees wrapper)
+      const currentRotation = embeddedPage.getRotation().angle;
+      const newRotation = currentRotation + pageData.rotation;
+      embeddedPage.setRotation(Degrees(newRotation));
 
       newPdfDoc.addPage(embeddedPage);
     }
@@ -544,16 +545,16 @@ async function savePdf() {
     progressText.textContent = t('progress.finalizing');
     const pdfBytes = await newPdfDoc.save();
 
-    // Store for download
+    // Store for download — revoke any previous blob URL to prevent memory leak
+    if (window.currentPdfBlobUrl) {
+      URL.revokeObjectURL(window.currentPdfBlobUrl);
+    }
     window.currentPdfBlob = new Blob([pdfBytes], { type: 'application/pdf' });
 
     progressFill.style.width = '100%';
     progressPercent.textContent = '100%';
     resultInfo.hidden = false;
-    resultDetails.textContent = `${pageIndices.length} ${t('result.pages')}`.replace(
-      '{count}',
-      pageIndices.length,
-    );
+    resultDetails.textContent = t('result.pages', { count: pageIndices.length });
     saveBtn.hidden = true;
     downloadBtn.hidden = false;
     downloadBtn.textContent = outputFile.endsWith('.pdf') ? outputFile : `${outputFile}.pdf`;
@@ -601,13 +602,15 @@ async function downloadPdf() {
   const outputFile = outputNameInput.value || 'reordered';
   const filename = outputFile.endsWith('.pdf') ? outputFile : `${outputFile}.pdf`;
   const url = URL.createObjectURL(window.currentPdfBlob);
+  window.currentPdfBlobUrl = url;
   const a = document.createElement('a');
   a.href = url;
   a.download = filename;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+  // Revoke object URL to prevent memory leak
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
   announce(t('btn.downloadStarted'));
 }
 
