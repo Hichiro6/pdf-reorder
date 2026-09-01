@@ -3,19 +3,21 @@
  * Reorder, rotate, and remove pages using pdf-lib and pdfjs-dist
  */
 
-import { PDFDocument, Degrees } from 'pdf-lib';
-import * as pdfjsLib from 'pdfjs-dist';
+import { degrees, PDFDocument } from 'pdf-lib';
+import * as pdfjsLib from 'pdfjs-dist/build/pdf.mjs';
 import { initI18n, t } from './i18n.js';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
-  './pdf.worker.min.mjs',
+  'pdfjs-dist/build/pdf.worker.min.mjs',
   import.meta.url,
 ).toString();
 
 // State
 let pdfDoc = null;
+let pdfjsDoc = null;
 let pages = []; // [{ id, pageNum, thumbnail, rotation }]
 let selectedPages = new Set();
+let pdfjsLoadingTask = null;
 
 // Elements
 const dropzoneSection = document.getElementById('dropzone-section');
@@ -35,6 +37,7 @@ const applyRotationBtn = document.getElementById('btn-apply-rotation');
 const outputNameInput = document.getElementById('output-name');
 const pageRangeInput = document.getElementById('page-range');
 const progressContainer = document.getElementById('progress-container');
+const progressBar = document.getElementById('progress-bar');
 const progressFill = document.getElementById('progress-fill');
 const progressPercent = document.getElementById('progress-percent');
 const progressText = document.getElementById('progress-text');
@@ -81,13 +84,17 @@ function setupEventListeners() {
   rotateLeftBtn.addEventListener('click', () => rotateSelected(-90));
   rotateRightBtn.addEventListener('click', () => rotateSelected(90));
   applyRotationBtn.addEventListener('click', () => {
-    pages.forEach((p, idx) => {
-      const card = pagesGrid.querySelector(`[data-page-num="${idx + 1}"]`);
+    // Re-sync displayed rotation for every card from state
+    pages.forEach((p) => {
+      const card = pagesGrid.querySelector(`[data-id="${p.id}"]`);
       if (card) {
-        card.style.transform = `rotate(${p.rotation}deg)`;
+        const img = card.querySelector('.page-card__img');
+        if (img) {
+          img.style.transform = `rotate(${p.rotation}deg)`;
+        }
       }
     });
-    announce(t('progress.finalizing'));
+    announce(t('pages.rotationApplied'));
   });
 
   // Save
@@ -138,19 +145,32 @@ async function handleFiles(files) {
 async function loadPdf(file) {
   const arrayBuffer = await file.arrayBuffer();
 
+  // Destroy any previously loaded PDF.js document
+  if (pdfjsDoc) {
+    try {
+      await pdfjsDoc.destroy();
+    } catch (_e) {
+      // Ignore cleanup errors
+    }
+    pdfjsDoc = null;
+  }
+
   try {
-    const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
-    pdfDoc = await loadingTask.promise;
+    pdfjsLoadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+    pdfjsDoc = await pdfjsLoadingTask.promise;
 
     // Check password protection
-    if (pdfDoc.fingerprint === null) {
+    if (pdfjsDoc.fingerprint === null) {
       throw new Error(t('error.passwordProtected'));
     }
 
+    // Load into pdf-lib for page copying at save time
+    pdfDoc = await PDFDocument.load(arrayBuffer);
+
     pages = [];
 
-    for (let pageNum = 1; pageNum <= pdfDoc.numPages; pageNum++) {
-      const page = await pdfDoc.getPage(pageNum);
+    for (let pageNum = 1; pageNum <= pdfjsDoc.numPages; pageNum++) {
+      const page = await pdfjsDoc.getPage(pageNum);
       const viewport = page.getViewport({ scale: 0.5 });
 
       // Render thumbnail
@@ -178,9 +198,9 @@ async function loadPdf(file) {
 
     workspace.hidden = false;
     filenameEl.textContent = `${file.name}`;
-    pageCountEl.textContent = t('workspace.pages', { count: pdfDoc.numPages });
+    pageCountEl.textContent = t('workspace.pages', { count: pdfjsDoc.numPages });
     renderPages();
-    announce(`${pdfDoc.numPages} pages loaded`);
+    announce(`${pdfjsDoc.numPages} pages loaded`);
   } catch (err) {
     if (err.message.includes('password') || err.name === 'PasswordException') {
       throw new Error(t('error.passwordProtected'));
@@ -206,6 +226,7 @@ function createPageCard(page, index) {
   card.dataset.pageNum = index + 1;
   card.dataset.id = page.id;
   card.setAttribute('role', 'listitem');
+  card.setAttribute('tabindex', '0');
   card.setAttribute('aria-label', `Page ${index + 1}`);
 
   // Thumbnail wrapper
@@ -216,6 +237,9 @@ function createPageCard(page, index) {
   img.src = page.thumbnail;
   img.className = 'page-card__img';
   img.alt = `Page ${index + 1}`;
+  if (page.rotation !== 0) {
+    img.style.transform = `rotate(${page.rotation}deg)`;
+  }
   thumbWrapper.appendChild(img);
 
   // Checkbox
@@ -316,6 +340,37 @@ function createPageCard(page, index) {
     }
   });
 
+  // Keyboard: Enter/Space toggles selection, Arrow keys reorder
+  card.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      checkbox.checked = !checkbox.checked;
+      if (checkbox.checked) {
+        selectedPages.add(index);
+      } else {
+        selectedPages.delete(index);
+      }
+      card.classList.toggle('page-card--selected', checkbox.checked);
+      announce(`Page ${index + 1} ${checkbox.checked ? 'selected' : 'deselected'}`);
+    } else if (e.key === 'ArrowLeft' && index > 0) {
+      e.preventDefault();
+      const [moved] = pages.splice(index, 1);
+      pages.splice(index - 1, 0, moved);
+      renderPages();
+      const prevCard = pagesGrid.querySelector(`[data-id="${moved.id}"]`);
+      if (prevCard) prevCard.focus();
+      announce(`Page moved left to position ${index}`);
+    } else if (e.key === 'ArrowRight' && index < pages.length - 1) {
+      e.preventDefault();
+      const [moved] = pages.splice(index, 1);
+      pages.splice(index + 1, 0, moved);
+      renderPages();
+      const movedCard = pagesGrid.querySelector(`[data-id="${moved.id}"]`);
+      if (movedCard) movedCard.focus();
+      announce(`Page moved right to position ${index + 2}`);
+    }
+  });
+
   return card;
 }
 
@@ -413,21 +468,25 @@ function deselectAllPages() {
 }
 
 // === Rotation ===
-function rotatePage(index, degrees) {
+function rotatePage(index, rotDeg) {
   const page = pages[index];
-  page.rotation = (page.rotation + degrees) % 360;
+  page.rotation = (page.rotation + rotDeg) % 360;
   if (page.rotation < 0) page.rotation += 360;
 
-  const card = pagesGrid.querySelector(`[data-page-num="${index + 1}"]`);
+  const card = pagesGrid.querySelector(`[data-id="${page.id}"]`);
   if (card) {
-    card.style.transform = `rotate(${page.rotation}deg)`;
+    const img = card.querySelector('.page-card__img');
+    if (img) {
+      img.style.transform = `rotate(${page.rotation}deg)`;
+    }
     const indicator = card.querySelector('.page-card__rotation');
     if (indicator) {
       indicator.style.display = page.rotation !== 0 ? 'inline' : 'none';
+      indicator.title = `${page.rotation}° rotated`;
     }
   }
 
-  announce(`Page ${index + 1} rotated ${degrees}°`);
+  announce(`Page ${index + 1} rotated ${rotDeg}°`);
 }
 
 function rotateSelected(degrees) {
@@ -466,8 +525,16 @@ function announce(message) {
   srLive.textContent = message;
 }
 
-function resetAll() {
+async function resetAll() {
   pdfDoc = null;
+  if (pdfjsDoc) {
+    try {
+      await pdfjsDoc.destroy();
+    } catch (_e) {
+      // Ignore cleanup errors
+    }
+    pdfjsDoc = null;
+  }
   pages = [];
   selectedPages.clear();
   pagesGrid.innerHTML = '';
@@ -475,12 +542,14 @@ function resetAll() {
   dropzoneSection.hidden = false;
   progressContainer.hidden = true;
   resultInfo.hidden = true;
+  resultInfo.style.background = '';
+  resultInfo.style.borderColor = '';
   downloadBtn.hidden = true;
   saveBtn.hidden = false;
   fileInput.value = '';
   outputNameInput.value = 'reordered';
   pageRangeInput.value = '';
-  announce('Reset complete');
+  announce(t('workspace.reset'));
 }
 
 // === PDF Saving ===
@@ -498,6 +567,7 @@ async function savePdf() {
   progressContainer.hidden = false;
   progressFill.style.width = '0%';
   progressPercent.textContent = '0%';
+  progressBar.setAttribute('aria-valuenow', '0');
   resultInfo.hidden = true;
   downloadBtn.hidden = true;
 
@@ -531,13 +601,14 @@ async function savePdf() {
       const percent = Math.round(((i + 1) / pageIndices.length) * 100);
       progressFill.style.width = `${percent}%`;
       progressPercent.textContent = `${percent}%`;
+      progressBar.setAttribute('aria-valuenow', String(percent));
 
       // Copy page from original PDF
       const [embeddedPage] = await newPdfDoc.copyPages(pdfDoc, [pageData.pageNum - 1]);
       // Apply original rotation + user rotation (pdf-lib expects Degrees wrapper)
       const currentRotation = embeddedPage.getRotation().angle;
       const newRotation = currentRotation + pageData.rotation;
-      embeddedPage.setRotation(Degrees(newRotation));
+      embeddedPage.setRotation(degrees(newRotation));
 
       newPdfDoc.addPage(embeddedPage);
     }
