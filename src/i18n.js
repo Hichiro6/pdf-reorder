@@ -6,20 +6,21 @@
 export const STORAGE_KEY = 'pdfreorder_lang';
 
 export const LANGUAGES = {
-  en: { code: 'en', name: 'English' },
-  fr: { code: 'fr', name: 'Français' },
-  de: { code: 'de', name: 'Deutsch' },
-  es: { code: 'es', name: 'Español' },
-  pt: { code: 'pt', name: 'Português' },
-  nl: { code: 'nl', name: 'Nederlands' },
-  it: { code: 'it', name: 'Italiano' },
+  en: { code: 'en', name: 'English', flag: '🇬🇧' },
+  fr: { code: 'fr', name: 'Français', flag: '🇫🇷' },
+  de: { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
+  es: { code: 'es', name: 'Español', flag: '🇪🇸' },
+  pt: { code: 'pt', name: 'Português', flag: '🇵🇹' },
+  nl: { code: 'nl', name: 'Nederlands', flag: '🇳🇱' },
+  it: { code: 'it', name: 'Italiano', flag: '🇮🇹' },
 };
 
 export const TRANSLATIONS = {
   en: {
     'app.title': 'PDF Reorder — Rotate & Reorder Pages',
     'app.tagline': 'Reorganize, rotate, and remove pages from your PDF — 100% in your browser',
-    'privacy.badge': '100% client-side',
+    'header.tagline': 'Reorganize, rotate, and remove pages from your PDF',
+    'privacy.badge': '🔒 100% client-side — your documents never leave your browser',
     'privacy.tooltip': 'Your PDF never leaves your browser. No upload, no server.',
     'dropzone.title': 'Drop your PDF here',
     'dropzone.subtitle': 'or click to browse',
@@ -58,14 +59,15 @@ export const TRANSLATIONS = {
     'error.saveFailed': 'Failed to save PDF: {msg}',
     'error.pageRange': 'Invalid page range format',
     'label.language': 'Language',
-    'footer.privacy': 'Your documents never leave your browser',
-    'footer.openSource': 'Open source',
+    'privacy.link': 'View on GitHub',
+    'footer.bmc': 'Buy me a coffee',
   },
   fr: {
     'app.title': 'PDF Reorder — Pivoter et réorganiser les pages',
     'app.tagline':
       'Réorganisez, pivotez et supprimez les pages de votre PDF — 100% dans votre navigateur',
-    'privacy.badge': '100% côté client',
+    'header.tagline': 'Réorganisez, pivotez et supprimez les pages de votre PDF',
+    'privacy.badge': '🔒 100% côté client — vos documents ne quittent jamais votre navigateur',
     'privacy.tooltip': 'Votre PDF ne quitte jamais votre navigateur. Aucun envoi, aucun serveur.',
     'dropzone.title': 'Déposez votre PDF ici',
     'dropzone.subtitle': 'ou cliquez pour parcourir',
@@ -105,13 +107,14 @@ export const TRANSLATIONS = {
     'error.saveFailed': "Échec de l'enregistrement du PDF : {msg}",
     'error.pageRange': 'Format de plage de pages invalide',
     'label.language': 'Langue',
-    'footer.privacy': 'Vos documents ne quittent jamais votre navigateur',
-    'footer.openSource': 'Open source',
+    'privacy.link': 'Voir sur GitHub',
+    'footer.bmc': 'Offrez-moi un café',
   },
   de: {
     'app.title': 'PDF Reorder — Seiten drehen und neu anordnen',
     'app.tagline': 'Seiten neu anordnen, drehen und entfernen — 100% in Ihrem Browser',
-    'privacy.badge': '100% clientseitig',
+    'header.tagline': 'Seiten neu anordnen, drehen und entfernen',
+    'privacy.badge': '🔒 100% clientseitig — Ihre Dokumente verlassen niemals Ihren Browser',
     'privacy.tooltip': 'Ihre PDF verlässt niemals Ihren Browser. Kein Upload, kein Server.',
     'dropzone.title': 'PDF hier ablegen',
     'dropzone.subtitle': 'oder klicken zum Durchsuchen',
@@ -150,13 +153,14 @@ export const TRANSLATIONS = {
     'error.saveFailed': 'PDF konnte nicht gespeichert werden: {msg}',
     'error.pageRange': 'Ungültiges Seitenbereichsformat',
     'label.language': 'Sprache',
-    'footer.privacy': 'Ihre Dokumente verlassen niemals Ihren Browser',
-    'footer.openSource': 'Open Source',
+    'privacy.link': 'Auf GitHub ansehen',
+    'footer.bmc': 'Kaffee spendieren',
   },
   es: {
     'app.title': 'PDF Reorder — Rotar y reordenar páginas',
     'app.tagline': 'Reorganiza, rota y elimina páginas de tu PDF — 100% en tu navegador',
-    'privacy.badge': '100% lado cliente',
+    'header.tagline': 'Reorganiza, rota y elimina páginas de tu PDF',
+    'privacy.badge': '🔒 100% lado cliente — tus documentos nunca salen de tu navegador',
     'privacy.tooltip': 'Tu PDF nunca sale de tu navegador. Sin subidas, sin servidor.',
     'dropzone.title': 'Suelta tu PDF aquí',
     'dropzone.subtitle': 'o haz clic para explorar',
@@ -195,13 +199,14 @@ export const TRANSLATIONS = {
     'error.saveFailed': 'Error al guardar el PDF: {msg}',
     'error.pageRange': 'Formato de rango de páginas inválido',
     'label.language': 'Idioma',
-    'footer.privacy': 'Tus documentos nunca salen de tu navegador',
-    'footer.openSource': 'Código abierto',
+    'privacy.link': 'Ver en GitHub',
+    'footer.bmc': 'Invítame a un café',
   },
   pt: {
     'app.title': 'PDF Reorder — Rodar e reorganizar páginas',
     'app.tagline': 'Reorganize, rode e remova páginas do seu PDF — 100% no seu navegador',
-    'privacy.badge': '100% lado cliente',
+    'header.tagline': 'Reorganize, rode e remova páginas do seu PDF',
+    'privacy.badge': '🔒 100% lado cliente — seus documentos nunca saem do seu navegador',
     'privacy.tooltip': 'O seu PDF nunca sai do seu navegador. Sem upload, sem servidor.',
     'dropzone.title': 'Solte seu PDF aqui',
     'dropzone.subtitle': 'ou clique para procurar',
@@ -239,13 +244,14 @@ export const TRANSLATIONS = {
     'error.saveFailed': 'Falha ao salvar o PDF: {msg}',
     'error.pageRange': 'Formato de intervalo de páginas inválido',
     'label.language': 'Idioma',
-    'footer.privacy': 'Seus documentos nunca saem do seu navegador',
-    'footer.openSource': 'Código aberto',
+    'privacy.link': 'Ver no GitHub',
+    'footer.bmc': 'Pague-me um café',
   },
   nl: {
     'app.title': "PDF Reorder — Pagina's draaien en herschikken",
     'app.tagline': "Herschik, roteer en verwijder pagina's van je PDF — 100% in je browser",
-    'privacy.badge': '100% client-side',
+    'header.tagline': "Herschik, roteer en verwijder pagina's van je PDF",
+    'privacy.badge': '🔒 100% client-side — je documenten verlaten nooit je browser',
     'privacy.tooltip': 'Je PDF verlaat nooit je browser. Geen upload, geen server.',
     'dropzone.title': 'Sleep je PDF hierheen',
     'dropzone.subtitle': 'of klik om te bladeren',
@@ -284,13 +290,14 @@ export const TRANSLATIONS = {
     'error.saveFailed': 'PDF opslaan mislukt: {msg}',
     'error.pageRange': 'Ongeldig paginabereikformaat',
     'label.language': 'Taal',
-    'footer.privacy': 'Je documenten verlaten nooit je browser',
-    'footer.openSource': 'Open source',
+    'privacy.link': 'Bekijk op GitHub',
+    'footer.bmc': 'Trakteer me op een koffie',
   },
   it: {
     'app.title': 'PDF Reorder — Ruota e riordina le pagine',
     'app.tagline': 'Riorganizza, ruota e rimuovi pagine dal tuo PDF — 100% nel tuo browser',
-    'privacy.badge': '100% lato client',
+    'header.tagline': 'Riorganizza, ruota e rimuovi pagine dal tuo PDF',
+    'privacy.badge': '🔒 100% lato client — i tuoi documenti non lasciano mai il tuo browser',
     'privacy.tooltip': 'Il tuo PDF non lascia mai il tuo browser. Nessun upload, nessun server.',
     'dropzone.title': 'Trascina qui il tuo PDF',
     'dropzone.subtitle': 'o clicca per sfogliare',
@@ -329,8 +336,8 @@ export const TRANSLATIONS = {
     'error.saveFailed': 'Salvataggio PDF fallito: {msg}',
     'error.pageRange': 'Formato intervallo pagine non valido',
     'label.language': 'Lingua',
-    'footer.privacy': 'I tuoi documenti non lasciano mai il tuo browser',
-    'footer.openSource': 'Open source',
+    'privacy.link': 'Vedi su GitHub',
+    'footer.bmc': 'Offrimi un caffè',
   },
 };
 
@@ -349,6 +356,7 @@ export function setLanguage(lang) {
       // Storage unavailable
     }
     applyTranslations();
+    updateLanguageButtons();
   }
 }
 
@@ -406,18 +414,39 @@ function setupLanguageSelector() {
   const container = document.getElementById('lang-selector');
   if (!container) return;
 
-  const select = document.createElement('select');
-  select.setAttribute('aria-label', t('label.language'));
+  container.className = 'lang-selector';
+  container.setAttribute('role', 'group');
+  container.setAttribute('aria-label', t('label.language'));
 
-  for (const [code, { name }] of Object.entries(LANGUAGES)) {
-    const opt = document.createElement('option');
-    opt.value = code;
-    opt.textContent = name;
-    if (code === currentLang) opt.selected = true;
-    select.appendChild(opt);
+  for (const [code, { name, flag }] of Object.entries(LANGUAGES)) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'lang-btn';
+    btn.textContent = flag;
+    btn.title = name;
+    btn.setAttribute('aria-label', name);
+    btn.dataset.lang = code;
+    if (code === currentLang) {
+      btn.classList.add('active');
+      btn.setAttribute('aria-pressed', 'true');
+    } else {
+      btn.setAttribute('aria-pressed', 'false');
+    }
+    btn.addEventListener('click', () => {
+      if (code !== currentLang) {
+        setLanguage(code);
+      }
+    });
+    container.appendChild(btn);
   }
+}
 
-  select.addEventListener('change', () => setLanguage(select.value));
-
-  container.appendChild(select);
+function updateLanguageButtons() {
+  const container = document.getElementById('lang-selector');
+  if (!container) return;
+  container.querySelectorAll('.lang-btn').forEach((btn) => {
+    const isActive = btn.dataset.lang === currentLang;
+    btn.classList.toggle('active', isActive);
+    btn.setAttribute('aria-pressed', String(isActive));
+  });
 }

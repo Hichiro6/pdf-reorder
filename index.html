@@ -16,25 +16,17 @@
 <body>
   <!-- Header -->
   <header class="header">
-    <div class="header__inner">
-      <div class="header__brand">
-        <div class="header__logo">
-          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="4" y="2" width="20" height="24" rx="3" fill="none" stroke="currentColor" stroke-width="2"/>
-            <path d="M9 8h10M9 12h10M9 16h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            <path d="M20 20l3 3M23 20l-3 3" stroke="#6366f1" stroke-width="2" stroke-linecap="round"/>
-          </svg>
-        </div>
-        <div>
-          <h1 class="header__title">PDF Reorder</h1>
-          <p class="header__tagline" data-i18n="app.tagline">Reorganize, rotate, and remove pages from your PDF</p>
-        </div>
-      </div>
-      <div class="header__actions">
-        <span class="badge badge--privacy" data-i18n="privacy.badge" tabindex="0" data-i18n-attr="title: privacy.tooltip">100% client-side</span>
-        <div id="lang-selector"></div>
-      </div>
+    <div class="header__logo">
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <rect width="32" height="32" rx="8" fill="#5e6ad2"/>
+        <path d="M10 8h12M10 12h12M10 16h7" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M22 22l4 4M26 22l-4 4" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+      <h1>PDF Reorder</h1>
     </div>
+    <p class="header__tagline" data-i18n="header.tagline">Reorganize, rotate, and remove pages from your PDF</p>
+    <!-- Language selector créé dynamiquement par i18n.js -->
+    <div id="lang-selector"></div>
   </header>
 
   <!-- Main Content -->
@@ -142,9 +134,13 @@
 
   <!-- Footer -->
   <footer class="footer">
-    <div class="footer__inner">
-      <span class="footer__privacy" data-i18n="footer.privacy">Your documents never leave your browser</span>
-      <a href="https://github.com/Hichiro6/pdf-reorder" class="footer__link" data-i18n="footer.openSource">Open source</a>
+    <div class="footer__privacy">
+      <span class="badge" data-i18n="privacy.badge" tabindex="0" data-i18n-attr="title: privacy.tooltip">🔒 100% client-side — your documents never leave your browser</span>
+    </div>
+    <div class="footer__links">
+      <a href="https://github.com/Hichiro6/pdf-reorder" target="_blank" rel="noopener noreferrer" data-i18n="privacy.link">View on GitHub</a>
+      <span class="footer__separator">·</span>
+      <a href="https://buymeacoffee.com/hichiro" target="_blank" rel="noopener noreferrer" class="footer__bmc">☕ <span data-i18n="footer.bmc">Buy me a coffee</span></a>
     </div>
   </footer>
 
